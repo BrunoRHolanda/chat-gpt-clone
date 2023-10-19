@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+service ChatService {
+    rpc List (Void) returns (Chats);
+    rpc Create(CreateChatRequest) returns (CreateChatResponse);
+    rpc Destroy(DestroyChatRequest) returns (Void);
+}
+
+message Void {}
+
+message Chat {
+    int32 id = 1;
+    string title = 2;
+}
+
+message Chats {
+    repeated Chat chats = 1;
+}
+
+message CreateChatRequest {
+    string title = 1;
+}
+
+message CreateChatResponse {
+    Chat chat = 1;
+}
+
+message DestroyChatRequest {
+    int32 id = 1;
+}

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+service MessageService {
+    rpc Send(MessageRequest) returns (stream MessageResponse);
+    rpc GetMessages(GetMessagesRequest) returns (Messages);
+}
+
+message Message {
+    int32 id = 1;
+    string role = 2;
+    string model = 3;
+    string message = 4;
+    string response = 5;
+    int32 total_tokens = 6;
+}
+
+message MessageRequest {
+    int32 chat_id = 1;
+    string message = 2;
+}
+
+message MessageResponse {
+    Message response = 1;
+}
+
+message GetMessagesRequest {
+    int32 chat_id = 1;
+}
+
+message Messages {
+    repeated Message messages = 1;
+}
