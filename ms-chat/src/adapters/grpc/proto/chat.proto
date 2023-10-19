@@ -3,7 +3,7 @@ syntax = "proto3";
 message Void {}
 
 message ChatRequest {
-    optional string chat_id = 1;
+    string chat_id = 1;
     string user_message = 2;
 }
 

@@ -19,7 +19,7 @@ class StringValidation extends Validation {
     }
 
     isRequired() {
-        if (this._value !== '') {
+        if (this._value === '') {
             throw new Error(`${this._attributeName} is required.`);
         }
 
@@ -49,7 +49,7 @@ class NumberValidation extends Validation {
     }
 
     isInteger() {
-        if (this._id % 1 !== 0) {
+        if (this._value % 1 !== 0) {
             throw new Error(`${this._attributeName} must be a integer value.`);
         }
 
@@ -57,7 +57,7 @@ class NumberValidation extends Validation {
     }
 
     isFloat() {
-        if (this._id % 1 === 0) {
+        if (this._value % 1 === 0) {
             throw new Error(`${this._attributeName} must be a float value.`);
         }
 
@@ -65,7 +65,7 @@ class NumberValidation extends Validation {
     }
 
     gte(value) {
-        if (this._id <= value) {
+        if (this._value < value) {
             throw new Error(`${this._attributeName} must be greater than or equal to ${value}.`);
         }
 
@@ -77,7 +77,7 @@ class NumberValidation extends Validation {
     }
 
     lte(value) {
-        if (this._id >= value) {
+        if (this._value >= value) {
             throw new Error(`${this._attributeName} must be less than or equal to ${value}.`);
         }
 

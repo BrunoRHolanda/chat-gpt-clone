@@ -18,11 +18,11 @@ class GrpcServer {
     }
 
     _loadServices() {
-        const NotesDefinition = grpc.loadPackageDefinition(
+        const ChatDefinition = grpc.loadPackageDefinition(
             protoLoader.loadSync(path.resolve(__dirname, './proto/chat.proto'))
         );
 
-        GrpcServer._server.addService('ChatService', require('./services/chat-service'));
+        GrpcServer._server.addService(ChatDefinition.ChatService.service, require('./services/chat-service'));
     }
 
     _init() {
@@ -38,8 +38,9 @@ class GrpcServer {
     start() {
         this._init();
 
-        GrpcServer._server.bind(`${this._host}:${this._port}`, grpc.ServerCredentials.createInsecure());
-        GrpcServer._server.start();
+        GrpcServer._server.bindAsync(`${this._host}:${this._port}`, grpc.ServerCredentials.createInsecure(), () => {
+            GrpcServer._server.start();
+        });
     }
 }
 

@@ -57,7 +57,7 @@ class Completion {
 
         const stream = await openaiClient.chat.completions.create({
             messages: chat.messages.map(message => ({
-                role: message.role,
+                role: message.role.name,
                 content: message.content,
             })),
             model: chat.model.name,

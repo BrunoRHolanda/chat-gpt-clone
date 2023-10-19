@@ -48,7 +48,8 @@ Chat.init({
     }
 }, {
     sequelize: Database.connection,
-    tableName: 'chats'
+    tableName: 'chats',
+    sync: { force: true, alter: true }
 });
 
 module.exports = { Chat };

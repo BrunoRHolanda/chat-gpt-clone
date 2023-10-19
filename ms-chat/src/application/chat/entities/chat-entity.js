@@ -61,7 +61,7 @@ class ChatConfiguration {
         return this._stop;
     }
 
-    get maxTokens() {
+    get max_tokens() {
         return this._maxTokens;
     }
 }
@@ -163,6 +163,10 @@ class ChatEntity extends Entity {
     }
 
     get all_messages() {
+        if (this._deleted_messages === undefined) {
+            return this._messages;
+        }
+
         return this._deleted_messages.concat(this._messages);
     }
 
@@ -189,13 +193,13 @@ class ChatEntity extends Entity {
     }
 
     async addMessage(role, content) {
-        const { getEncoding } = require('js-tiktoken');
+        const { encodingForModel } = require('js-tiktoken');
         const map = {
-            [Model.GPT3]: 'gpt-3',
+            [Model.GPT3]: 'gpt-4',
             [Model.GPT4]: 'gpt-4',
         };
 
-        const message_total_tokens = getEncoding(map[this._model.name]).encode(content).length;
+        const message_total_tokens = encodingForModel(map[this._model.name]).encode(content).length;
         const chat_new_total_tokens = this._token_usage + message_total_tokens;
 
         if (this._messages === undefined) {
@@ -206,16 +210,18 @@ class ChatEntity extends Entity {
             this.__removeOldMessagesUntilNewOneFits();
         }
 
-        this._messages.push(new MessageEntity(0, this._id, role, content, message_total_tokens));
+        this._messages.push(new MessageEntity(0, this._id, Role.from(role), content, message_total_tokens));
         this._refreshTokenUsage(chat_new_total_tokens);
     }
 
-    async static newChat(title, initialMessage, model, configuration, saveChat) {
-        const chat =  new ChatEntity(0, model, title, configuration);
+    static newChat(title, initialMessage, model, configuration) {
+        return new Promise(async (resolve, reject) => {
+            const chat =  new ChatEntity(0, model, title, configuration);
 
-        await chat.addMessage(Role.SYSTEM, initialMessage);
+            await chat.addMessage(Role.SYSTEM, initialMessage);
 
-        return chat;
+            resolve(chat);
+        });
     }
 }
 

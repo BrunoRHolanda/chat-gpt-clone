@@ -55,10 +55,10 @@ class MessageEntity extends Entity {
     validate() {
         super.validate();
 
-        validation.createNumberValidator(this._chat_id, 'chat_id').isInteger().isUnsigned();
-        validation.createStringValidator(this._role, 'role').isString().isRequired().max(255);
-        validation.createStringValidator(this._content, 'content').isString().isRequired().max(255);
-        validation.createNumberValidator(this._total_tokens, 'total_tokens').isInteger().isUnsigned();
+        validation.createNumberValidator('chat_id', this._chat_id).isInteger().isUnsigned();
+        validation.createStringValidator('role', this._role.name).isString().isRequired().max(255);
+        validation.createStringValidator('content', this._content).isString().isRequired().max(255);
+        validation.createNumberValidator('total_tokens', this._total_tokens).isInteger().isUnsigned();
 
         if (!this._role) {
             throw new Error(`Role is required.`);

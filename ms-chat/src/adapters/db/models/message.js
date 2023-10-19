@@ -35,7 +35,8 @@ Message.init({
     }
 }, {
     sequelize: Database.connection,
-    tableName: 'messages'
+    tableName: 'messages',
+    sync: { force: true, alter: true }
 });
 
 module.exports = { Message };
