@@ -30,12 +30,16 @@ Chat.init({
         type: DataTypes.STRING,
         allowNull: true
     },
-    maxTokens: {
+    max_tokens: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false
     },
     model: {
         type: DataTypes.STRING,
+        allowNull: false
+    },
+    model_max_token: {
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false
     },
     total_token_usage: {
