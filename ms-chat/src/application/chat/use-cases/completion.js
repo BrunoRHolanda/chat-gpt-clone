@@ -1,7 +1,7 @@
-const { openaiClient } = require("../../../../../configs/openai");
+const { openaiClient } = require("../../../configs/openai");
 
-const {ChatEntity, Model, ChatConfiguration} = require("../../../entities/chat-entity");
-const {Role} = require("../../../entities/message-entity");
+const {ChatEntity, Model, ChatConfiguration} = require("../entities/chat-entity");
+const {Role} = require("../entities/message-entity");
 
 class configDTO {
     constructor(
@@ -50,7 +50,7 @@ class Completion {
                 )
             );
 
-            await this._chatRepository.insert(chat);
+            await this._chatRepository.save(chat);
         }
 
         await chat.addMessage(Role.USER, user_message);
@@ -64,9 +64,20 @@ class Completion {
             stream: true,
         });
 
+        let responseMessage = '';
+
         for await (const part of stream) {
-            this._eventEmitter.emit('completion_stream', part.choices[0]?.delta?.content || '')
+            const content = part.choices[0]?.delta?.content || '';
+
+            responseMessage += content;
+
+            this._eventEmitter.emit('completion_stream', content);
         }
+
+        this._eventEmitter.emit('completion_stream_end');
+
+        await chat.addMessage(Role.ASSISTANT, responseMessage);
+        await this._chatRepository.save(chat);
     }
 }
 

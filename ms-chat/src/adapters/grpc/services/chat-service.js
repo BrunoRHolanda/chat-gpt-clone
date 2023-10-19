@@ -1,41 +1,33 @@
+const events = require('events');
 const { ChatDbRepository } = require("../../db/repositories/chat-db-repository");
-const { FindAllChatsUseCase } = require("../../../application/chat/use-cases/chat/find-all-chats-use-case");
-const { CreateChatUseCase } = require("../../../application/chat/use-cases/chat/create-chat-use-case");
-const { DestroyChatUseCase } = require("../../../application/chat/use-cases/chat/destroy-chat-use-case");
-
-const chatRepository = new ChatDbRepository();
+const {Completion} = require("../../../application/chat/use-cases/completion");
+const {Model} = require("../../../application/chat/entities/chat-entity");
 
 module.exports = {
-    List(_, callback) {
-        (new FindAllChatsUseCase(chatRepository))
-            .execute()
-            .then((chats) => {
-            callback(null, chats.map(chat => ({id: chat.id, title: chat.title})));
-            })
-            .catch((error) => {
-                callback(new Error(error.message), null);
-            });
-    },
+    ChatStream(call) {
+        const { chat_id, user_message } = call.request;
+        const chatRepository = new ChatDbRepository();
+        const eventEmitter = new events.EventEmitter();
+        const completion = new Completion(chatRepository, eventEmitter);
 
-    Create({ request: { title } }, callback) {
-        (new CreateChatUseCase(chatRepository))
-            .execute({ title })
-            .then((newChat) => {
-                callback(null, {id: newChat.id, title: newChat.title});
-            })
-            .catch((error) => {
-                callback(new Error(error.message), null);
-            });
-    },
+        eventEmitter.on('completion_stream', (message) => {
+            call.write({ message });
+        });
 
-    Destroy({ request: { id } }, callback) {
-        (new DestroyChatUseCase(chatRepository))
-            .execute({ id })
-            .then(() => {
-                callback(null, {});
-            })
-            .catch((error) => {
-                callback(new Error(error.message), null);
-            });
+        eventEmitter.on('completion_stream_end', () => {
+            call.end();
+        });
+
+        completion.execute(chat_id || 0, user_message, {
+            model: Model.GPT3,
+            model_max_token: 4096,
+            temperature: 0.9,
+            topP: 1,
+            n: 1,
+            stop: ['\\super-end\\'],
+            max_tokens: 300,
+            initialMessage: 'Seu nome é Huia. Você é a inteligência artificial da Gauge. Você da suporte a programadores e arquitetos de software. ',
+            title: 'Novo Chat HUIA'
+        });
     }
 }

@@ -18,18 +18,11 @@ class GrpcServer {
     }
 
     _loadServices() {
-        const serviceMap = require('./grpc-service-map');
+        const NotesDefinition = grpc.loadPackageDefinition(
+            protoLoader.loadSync(path.resolve(__dirname, './proto/chat.proto'))
+        );
 
-        Object.keys(serviceMap).forEach(filename => {
-            const NotesDefinition = grpc.loadPackageDefinition(
-                protoLoader.loadSync(path.resolve(__dirname, `./proto/${filename}.proto`))
-            );
-
-            GrpcServer._server.addService(
-                NotesDefinition[serviceMap[filename].service.name].service,
-                serviceMap[filename].service.handlers
-            );
-        });
+        GrpcServer._server.addService('ChatService', require('./services/chat-service'));
     }
 
     _init() {
